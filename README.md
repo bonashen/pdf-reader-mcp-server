@@ -6,32 +6,39 @@ An MCP server for reading PDFs
 
 ### Resources
 
-The server provides PDF file resources with:
+The server provides academic-aware PDF resources with:
 - Custom `file://` URI scheme for accessing individual PDFs
-- Each PDF resource exposes metadata, page count, and content preview
-- Resources updated when PDFs are loaded via the `load-pdf` tool
+- Academic structure detection and key section extraction
+- Metadata enriched with document type classification
+- Resources optimized for agent understanding
 
-### Prompts
+### Academic Prompts
 
-The server provides intelligent PDF analysis prompts:
-- **summarize-pdf**: Creates comprehensive summaries of PDF documents
+The server provides specialized academic analysis prompts:
+- **summarize-academic-paper**: Intelligent academic paper summarization
   - Required "file_path" argument for PDF location
-  - Optional "style" argument (brief/detailed/technical)
-  - Generates prompts with full document text and metadata
-- **analyze-pdf-structure**: Analyzes document structure and layout
+  - Optional "focus" argument (general/methodology/results/implications)
+  - Generates prompts with key sections, citations, and metadata
+- **analyze-research-methodology**: Deep methodology analysis
   - Required "file_path" argument for PDF location
-  - Provides insights on organization, content types, and formatting
+  - Focuses on research design, data collection, and statistical methods
 
-### Tools
+### Enhanced Tools
 
-The server implements comprehensive PDF processing tools:
+**Basic PDF Processing:**
 - **load-pdf**: Load and cache a PDF file for processing
-- **extract-text**: Extract text content from PDF (all pages or specific page)
-- **extract-images**: Extract all embedded images with metadata
-- **get-metadata**: Get PDF metadata (title, author, pages, creation date, etc.)
-- **extract-tables**: Extract structured table data from PDF
-- **extract-annotations**: Extract comments, highlights, and annotations
+- **get-metadata**: Get PDF metadata and document information
+- **extract-images**: Extract embedded images with metadata
 - **render-page**: Render PDF pages as high-resolution images
+
+**Academic Enhancements:**
+- **extract-academic-text**: Text extraction with proper reading order and math formula preservation
+- **detect-sections**: Identify academic sections (Abstract, Introduction, Methods, Results, etc.)
+- **extract-abstract**: Specifically extract the abstract section
+- **extract-key-sections**: Get key sections optimized for agent understanding
+- **extract-citations**: Parse in-text citations and reference lists
+- **chunk-content**: Break content into agent-friendly semantic chunks
+- **analyze-document-structure**: Comprehensive academic document analysis
 
 ## Configuration
 
