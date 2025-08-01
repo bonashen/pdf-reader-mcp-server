@@ -1,0 +1,82 @@
+---
+alwaysApply: true
+---
+# PDF Reader MCP Server - Cursor Rules
+
+## Project Status
+- This is a **production-ready PDF processing MCP server** (not a template)
+- Fully implemented with 7 tools, 2 prompts, comprehensive PDF capabilities
+- Currently uses stdio transport, HTTP framework ready for future
+
+## Package Management
+- Always use `uv` for dependency management: `uv sync`, `uv build`, `uv publish`
+- Run server with: `uv --directory /Users/cloudchase/Desktop/AverageJoesLab/mcp-servers/pdf-reader run pdf-reader`
+- Test with sample PDF: `data/Rosenblatt1958.pdf`
+
+## Code Patterns
+
+### PDF Operations
+- All PDF processing goes through `PDFProcessor` class methods
+- Use document caching: check `pdf_cache` before loading new PDFs
+- Always validate file paths with `os.path.exists()` before processing
+- Support both full document and page-specific operations
+
+### MCP Handlers
+- All handlers must be async functions
+- Raise `ValueError` for invalid arguments or unknown tools/prompts
+- Call `server.request_context.session.send_resource_list_changed()` when state changes
+- Return proper `types.TextContent`, `types.ImageContent`, or `types.EmbeddedResource`
+
+### Error Handling
+- Wrap PDF operations in try-catch blocks
+- Provide meaningful error messages to clients
+- Handle corrupted/encrypted PDFs gracefully
+- Validate all tool arguments before processing
+
+## Architecture
+
+### Core Files
+- `src/pdf_reader/server.py` - Main implementation (all MCP handlers)
+- `src/pdf_reader/__init__.py` - Entry point (just runs server.main())
+- `pyproject.toml` - Dependencies and package config
+
+### State Management
+- `pdf_files: Dict[str, Dict[str, Any]]` - Tracks loaded PDFs with metadata
+- `pdf_cache: Dict[str, fitz.Document]` - Caches PyMuPDF documents for performance
+
+### Dependencies Stack
+- `pymupdf>=1.23.0` for PDF processing
+- `pillow>=10.0.0` for image handling
+- `fastapi>=0.104.0` + `uvicorn>=0.24.0` for HTTP transport
+- `aiofiles>=23.0.0` for async file operations
+
+## Development Workflow
+
+### Adding New PDF Tools
+1. Add method to `PDFProcessor` class
+2. Add tool definition to `handle_list_tools()` with JSON schema
+3. Implement logic in `handle_call_tool()` with error handling
+4. Test with MCP Inspector and sample PDF
+
+### Testing & Debugging
+- Use MCP Inspector: `npx @modelcontextprotocol/inspector uv --directory /path/to/pdf-reader run pdf-reader`
+- Server configured in Cursor at `/Users/cloudchase/.cursor/mcp.json`
+- Test all tools with `data/Rosenblatt1958.pdf`
+
+## Security Requirements
+- Validate all file paths to prevent directory traversal
+- Use `os.path.exists()` checks before file access
+- Sanitize PDF content before exposing via resources
+- Use safe base64 encoding for image extraction
+
+## Performance Guidelines
+- Cache PyMuPDF documents to avoid re-parsing
+- Support page-specific operations for large PDFs
+- Use async patterns for file operations
+- Focus on CPU-efficient processing (user has no local GPU)
+
+## Current Implementation
+- **Working Tools**: load-pdf, extract-text, extract-images, get-metadata, extract-tables, extract-annotations, render-page
+- **Working Prompts**: summarize-pdf (brief/detailed/technical), analyze-pdf-structure
+- **Transport**: stdio (working), HTTP framework ready
+- **Status**: Production-ready, actively configured in Cursor IDE
