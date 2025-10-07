@@ -7,7 +7,7 @@ import sys
 import os
 sys.path.insert(0, 'src')
 
-from pdf_reader.server import PDFProcessor, handle_call_tool, handle_list_tools, handle_get_prompt
+from academic_pdf_reader_mcp.server import PDFProcessor, handle_call_tool, handle_list_tools, handle_get_prompt
 
 async def test_all_functions():
     pdf_path = 'data/Rosenblatt1958.pdf'
@@ -75,7 +75,7 @@ async def test_all_functions():
                 self.session = MockSession()
         
         # Import the server module to set the request context
-        from pdf_reader import server
+        from academic_pdf_reader_mcp import server
         server.server.request_context = MockContext()
         
         result = await handle_call_tool("get-metadata", {"file_path": pdf_path})

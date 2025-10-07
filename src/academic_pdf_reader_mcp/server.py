@@ -3,7 +3,7 @@ Academic PDF Reader MCP Server with enhanced capabilities
 """
 import json
 import os
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 import uuid
 
 from mcp.server.fastmcp import FastMCP
@@ -23,7 +23,11 @@ mcp_server = FastMCP("academic-pdf-reader")
 # Basic PDF Tools
 @mcp_server.tool()
 async def load_pdf(file_path: str, name: str = None) -> str:
-    """Load a PDF file for processing"""
+    """Load a PDF file for processing
+    Args:
+        file_path (str): Path to the PDF file
+        name (str, optional): Custom name for the PDF. Defaults to filename.    
+    """
     if not file_path or not os.path.exists(file_path):
         raise ValueError(f"File not found: {file_path}")
     
@@ -47,8 +51,13 @@ async def get_metadata(file_path: str) -> str:
     return f"PDF Metadata:\n{json.dumps(metadata, indent=2)}"
 
 @mcp_server.tool()
-async def extract_images(file_path: str, page: int = None) -> str:
-    """Extract images from PDF"""
+async def extract_images(file_path: str, page: Optional[int] = None) -> str:
+    """
+    Extract images from PDF
+    Args:
+        file_path (str): Path to the PDF file
+        page (int, optional): Page number to extract images from. Defaults to None (all pages).
+    """
     images = await PDFProcessor.extract_images(file_path, page)
     
     result = f"Found {len(images)} images"
@@ -64,7 +73,12 @@ async def extract_images(file_path: str, page: int = None) -> str:
 
 @mcp_server.tool()
 async def render_page(file_path: str, page: int, dpi: int = 150) -> str:
-    """Render a PDF page as an image"""
+    """Render a PDF page as an image
+    Args:
+        file_path (str): Path to the PDF file
+        page (int): Page number to render
+        dpi (int, optional): DPI for rendering. Defaults to 150.
+    """
     img_b64 = await PDFProcessor.render_page(file_path, page, dpi)
     return f"Rendered page {page} at {dpi} DPI\nImage size: {len(img_b64)} characters"
 
@@ -88,7 +102,11 @@ async def extract_academic_text(file_path: str, page: int = None) -> str:
 
 @mcp_server.tool()
 async def detect_sections(file_path: str) -> str:
-    """Detect and extract academic paper sections"""
+    """
+    Detect and extract academic paper sections
+    Args:
+        file_path (str): Path to the PDF file
+    """
     sections_data = await SectionDetector.detect_sections(file_path)
     sections = sections_data["sections"]
     
@@ -106,7 +124,11 @@ async def detect_sections(file_path: str) -> str:
 
 @mcp_server.tool()
 async def extract_abstract(file_path: str) -> str:
-    """Extract the abstract from an academic paper"""
+    """
+    Extract the abstract from an academic paper
+    Args:
+        file_path (str): Path to the PDF file
+    """
     abstract_data = await SectionDetector.extract_abstract(file_path)
     
     if not abstract_data["found"]:
@@ -122,7 +144,11 @@ async def extract_abstract(file_path: str) -> str:
 
 @mcp_server.tool() 
 async def extract_key_sections(file_path: str) -> str:
-    """Extract key academic sections optimized for agent understanding"""
+    """
+    Extract key academic sections optimized for agent understanding
+    Args:
+        file_path (str): Path to the PDF file
+    """
     key_sections = await SectionDetector.extract_key_sections(file_path)
     
     if not key_sections:
@@ -137,7 +163,11 @@ async def extract_key_sections(file_path: str) -> str:
 
 @mcp_server.tool()
 async def extract_citations(file_path: str) -> str:
-    """Extract citations and references from the academic paper"""
+    """
+    Extract citations and references from the academic paper
+    Args:
+        file_path (str): Path to the PDF file
+    """
     citation_data = await CitationParser.extract_citations(file_path)
     
     result = f"Citation Analysis:\n"
@@ -159,7 +189,12 @@ async def extract_citations(file_path: str) -> str:
 
 @mcp_server.tool()
 async def chunk_content(file_path: str, chunk_size: int = 1000) -> str:
-    """Break PDF content into agent-friendly chunks"""
+    """
+    Break PDF content into agent-friendly chunks
+    Args:
+        file_path (str): Path to the PDF file
+        chunk_size (int, optional): Maximum words per chunk. Defaults to 1000.
+    """
     chunks = await AcademicTextProcessor.chunk_academic_content(file_path, chunk_size)
     
     result = f"Content chunked into {len(chunks)} segments:\n\n"
@@ -175,7 +210,11 @@ async def chunk_content(file_path: str, chunk_size: int = 1000) -> str:
 
 @mcp_server.tool()
 async def analyze_document_structure(file_path: str) -> str:
-    """Analyze the overall structure and characteristics of the academic document"""
+    """
+    Analyze the overall structure and characteristics of the academic document
+    Args:
+        file_path (str): Path to the PDF file
+    """
     section_summary = await SectionDetector.get_section_summary(file_path)
     citation_summary = await CitationParser.get_citation_summary(file_path)
     metadata = await PDFProcessor.get_metadata(file_path)
@@ -205,7 +244,12 @@ async def analyze_document_structure(file_path: str) -> str:
 # Academic Prompts
 @mcp_server.prompt()
 async def summarize_academic_paper(file_path: str, focus: str = "general") -> types.PromptMessage:
-    """Create an intelligent summary of an academic paper"""
+    """
+    Create an intelligent summary of an academic paper
+    Args:
+        file_path (str): Path to the PDF file
+        focus (str, optional): Summary focus. Defaults to "general".
+    """
     key_sections = await SectionDetector.extract_key_sections(file_path)
     metadata = await PDFProcessor.get_metadata(file_path)
     citation_summary = await CitationParser.get_citation_summary(file_path)
@@ -242,7 +286,11 @@ Key Sections Available:
 
 @mcp_server.prompt()
 async def analyze_research_methodology(file_path: str) -> types.PromptMessage:
-    """Analyze the research methodology of an academic paper"""
+    """
+    Analyze the research methodology of an academic paper
+    Args:
+        file_path (str): Path to the PDF file
+    """
     sections = await SectionDetector.detect_sections(file_path)
     methods_content = ""
     
@@ -270,7 +318,11 @@ Methods Section:
 # Resources
 @mcp_server.resource("file://{path}")
 async def read_pdf_resource(path: str) -> str:
-    """Read PDF with academic structure awareness"""
+    """
+    Read PDF with academic structure awareness
+    Args:
+        path (str): Path to the PDF file
+    """
     try:
         key_sections = await SectionDetector.extract_key_sections(path)
         metadata = await PDFProcessor.get_metadata(path)
@@ -285,7 +337,11 @@ async def read_pdf_resource(path: str) -> str:
 
 def main():
     """Main entry point for Academic PDF Reader MCP server"""
-    mcp_server.run(transport="sse")
+    # support sse transport & stdio, default to sse
+    # stdio is useful for debugging
+    # choose transport based on environment
+    transport = os.getenv("PDF_READER_TRANSPORT", "sse")
+    mcp_server.run(transport=transport)
 
 if __name__ == "__main__":
     main()

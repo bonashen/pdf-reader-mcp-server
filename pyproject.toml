@@ -1,5 +1,5 @@
 [project]
-name = "pdf-reader"
+name = "academic-pdf-reader-mcp"
 version = "0.1.0"
 description = "An MCP server for reading PDFs"
 readme = "README.md"
@@ -9,13 +9,18 @@ dependencies = [
     "pymupdf>=1.23.0",
     "uvicorn>=0.24.0",
 ]
+
 [[project.authors]]
 name = "mrcloudchase"
 email = "mrcloudchase@gmail.com"
+
+[[project.authors]]
+name = "shenyang"
+email = "cnshenyang@outlook.com"
 
 [build-system]
 requires = [ "uv_build>=0.8.4,<0.9.0",]
 build-backend = "uv_build"
 
 [project.scripts]
-pdf-reader = "pdf_reader:main"
+academic-pdf-reader-mcp = "academic_pdf_reader_mcp:main"

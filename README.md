@@ -82,6 +82,23 @@ uv sync
 }
 ```
 
+```json
+{
+"mcp.servers": {
+    "pdf-reader": {
+      "command": "uvx",
+      "args": [
+        "academic_pdf_reader_mcp"
+      ],
+      "description": "PDF reader with full extraction capabilities",
+      "env": {
+        "PDF_READER_TRANSPORT": "stdio"
+      }
+    }
+  }
+}
+```
+
 #### WindSurf IDE
 
 1. Open WindSurf settings
@@ -101,13 +118,30 @@ uv sync
 1. Open Cursor settings (Cmd/Ctrl + ,)
 2. Search for "MCP" or navigate to Extensions → MCP
 3. Add server configuration:
-
+`SSE transport`:
 ```json
 {
   "mcpServers": {
     "pdf-reader": {
       "url": "http://localhost:8000/sse",
       "description": "PDF reader with text, image, and table extraction"
+    }
+  }
+}
+```
+`stdio transport`:
+```json
+{
+"mcpServers": {
+    "pdf-reader": {
+      "command": "uvx",
+      "args": [
+        "academic_pdf_reader_mcp"
+      ],
+      "description": "PDF reader with full extraction capabilities",
+      "env": {
+        "PDF_READER_TRANSPORT": "stdio"
+      }
     }
   }
 }
@@ -131,17 +165,24 @@ On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
 
 ### Starting the Server
 
-Before using the PDF reader in any IDE, start the HTTP server:
+Before using the PDF reader in any IDE, start the server. The server supports two transport modes:
+- **SSE (Server-Sent Events)**: Default mode for connecting with IDEs
+- **stdio**: Useful for debugging purposes
+
+You can control the transport mode using the `PDF_READER_TRANSPORT` environment variable.
 
 ```bash
 # Navigate to the pdf-reader directory
 cd /path/to/your/pdf-reader
 
-# Start the server
+# Start the server in SSE mode (default)
 uv run pdf-reader
+
+# Or start the server in stdio mode for debugging
+PDF_READER_TRANSPORT=stdio uv run pdf-reader
 ```
 
-The server will start on `http://localhost:8000` with the MCP SSE endpoint available at `/sse` for all IDEs to connect to.
+In SSE mode, the server will start on `http://localhost:8000` with the MCP SSE endpoint available at `/sse` for all IDEs to connect to.
 
 ## Usage Examples
 
@@ -209,15 +250,22 @@ Note: You'll need to set PyPI credentials via environment variables or command f
 
 ### Debugging
 
-Since MCP servers run over stdio, debugging can be challenging. For the best debugging
-experience, we strongly recommend using the [MCP Inspector](https://github.com/modelcontextprotocol/inspector).
+Since MCP servers run over stdio, debugging can be challenging. There are two recommended approaches for debugging:
 
+#### Option 1: Use the stdio transport mode
 
-You can launch the MCP Inspector via [`npm`](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) with this command:
+You can run the server directly in stdio mode for basic debugging:
+
+```bash
+PDF_READER_TRANSPORT=stdio uv run pdf-reader
+```
+
+#### Option 2: Use the MCP Inspector
+
+For the best debugging experience, we strongly recommend using the [MCP Inspector](https://github.com/modelcontextprotocol/inspector):
 
 ```bash
 npx @modelcontextprotocol/inspector uv --directory /Users/cloudchase/Desktop/AverageJoesLab/mcp-servers/pdf-reader run pdf-reader
 ```
-
 
 Upon launching, the Inspector will display a URL that you can access in your browser to begin debugging.
